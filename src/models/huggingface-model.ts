@@ -6,6 +6,7 @@ import {
   AIProvider,
 } from "../types";
 import { BaseModel } from "./base-model";
+import { getApiKey, getBaseUrl } from "../utils";
 
 export class HuggingFaceModel extends BaseModel {
   readonly provider = AIProvider.HUGGINGFACE;
@@ -13,12 +14,16 @@ export class HuggingFaceModel extends BaseModel {
 
   constructor(config: AIModelConfig) {
     super(config);
-    if (!config.apiKey) {
-      throw new Error("HuggingFace API token is required");
-    }
-
-    this.baseURL =
-      config.baseURL || "https://api-inference.huggingface.co/models";
+    const apiKey = getApiKey(
+      config.apiKey,
+      "HUGGINGFACE_API_KEY",
+      "HuggingFace"
+    );
+    this.baseURL = getBaseUrl(
+      config.baseURL,
+      "HUGGINGFACE_BASE_URL",
+      "https://api-inference.huggingface.co/models"
+    );
   }
 
   async generate(request: AIModelRequest): Promise<AIModelResponse> {
@@ -43,7 +48,10 @@ export class HuggingFaceModel extends BaseModel {
 
     const response = await axios.post(`${this.baseURL}/${model}`, payload, {
       headers: {
-        Authorization: `Bearer ${config.apiKey}`,
+        Authorization: `Bearer ${
+          config.apiKey ||
+          getApiKey(config.apiKey, "HUGGINGFACE_API_KEY", "HuggingFace")
+        }`,
         "Content-Type": "application/json",
       },
     });

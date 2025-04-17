@@ -6,6 +6,7 @@ import {
   AIProvider,
 } from "../types";
 import { BaseModel } from "./base-model";
+import { getApiKey } from "../utils";
 
 export class GoogleModel extends BaseModel {
   readonly provider = AIProvider.GOOGLE;
@@ -13,17 +14,14 @@ export class GoogleModel extends BaseModel {
 
   constructor(config: AIModelConfig) {
     super(config);
-    if (!config.apiKey) {
-      throw new Error("Google AI API key is required");
-    }
-
-    this.client = new GoogleGenerativeAI(config.apiKey);
+    const apiKey = getApiKey(config.apiKey, "GOOGLE_API_KEY", "Google");
+    this.client = new GoogleGenerativeAI(apiKey);
   }
 
   async generate(request: AIModelRequest): Promise<AIModelResponse> {
     const config = this.mergeConfig(request.options);
     const model = this.client.getGenerativeModel({
-      model: config.model || "gemini-pro",
+      model: config.model || "gemini-2.0-flash", // Updated default model
       generationConfig: {
         temperature: config.temperature,
         maxOutputTokens: config.maxTokens,
@@ -46,7 +44,7 @@ export class GoogleModel extends BaseModel {
   ): AsyncGenerator<string, void, unknown> {
     const config = this.mergeConfig(request.options);
     const model = this.client.getGenerativeModel({
-      model: config.model || "gemini-pro",
+      model: config.model || "gemini-2.0-flash", // Updated default model
       generationConfig: {
         temperature: config.temperature,
         maxOutputTokens: config.maxTokens,

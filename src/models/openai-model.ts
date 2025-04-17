@@ -6,6 +6,7 @@ import {
   AIProvider,
 } from "../types";
 import { BaseModel } from "./base-model";
+import { getApiKey } from "../utils";
 
 export class OpenAIModel extends BaseModel {
   readonly provider = AIProvider.OPENAI;
@@ -13,12 +14,10 @@ export class OpenAIModel extends BaseModel {
 
   constructor(config: AIModelConfig) {
     super(config);
-    if (!config.apiKey) {
-      throw new Error("OpenAI API key is required");
-    }
+    const apiKey = getApiKey(config.apiKey, "OPENAI_API_KEY", "OpenAI");
 
     this.client = new OpenAI({
-      apiKey: config.apiKey,
+      apiKey: apiKey,
       baseURL: config.baseURL,
     });
   }

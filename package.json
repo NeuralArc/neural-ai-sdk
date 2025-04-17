@@ -1,6 +1,6 @@
 {
   "name": "neural-ai-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Unified SDK for interacting with various AI LLM providers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,8 +9,7 @@
     "test": "jest",
     "lint": "eslint src --ext .ts",
     "prepare": "npm run build",
-    "example:basic": "ts-node examples/basic-usage.ts",
-    "example:all": "ts-node examples/all-providers.ts",
+    "example": "ts-node examples/all-providers.ts",
     "clean": "rimraf dist"
   },
   "repository": {

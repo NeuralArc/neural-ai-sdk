@@ -6,6 +6,7 @@ import {
   AIProvider,
 } from "../types";
 import { BaseModel } from "./base-model";
+import { getBaseUrl } from "../utils";
 
 export class OllamaModel extends BaseModel {
   readonly provider = AIProvider.OLLAMA;
@@ -13,7 +14,11 @@ export class OllamaModel extends BaseModel {
 
   constructor(config: AIModelConfig) {
     super(config);
-    this.baseURL = config.baseURL || "http://localhost:11434/api";
+    this.baseURL = getBaseUrl(
+      config.baseURL,
+      "OLLAMA_BASE_URL",
+      "http://localhost:11434/api"
+    );
   }
 
   async generate(request: AIModelRequest): Promise<AIModelResponse> {

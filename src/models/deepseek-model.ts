@@ -6,6 +6,7 @@ import {
   AIProvider,
 } from "../types";
 import { BaseModel } from "./base-model";
+import { getApiKey, getBaseUrl } from "../utils";
 
 export class DeepSeekModel extends BaseModel {
   readonly provider = AIProvider.DEEPSEEK;
@@ -13,11 +14,12 @@ export class DeepSeekModel extends BaseModel {
 
   constructor(config: AIModelConfig) {
     super(config);
-    if (!config.apiKey) {
-      throw new Error("DeepSeek API key is required");
-    }
-
-    this.baseURL = config.baseURL || "https://api.deepseek.com/v1";
+    const apiKey = getApiKey(config.apiKey, "DEEPSEEK_API_KEY", "DeepSeek");
+    this.baseURL = getBaseUrl(
+      config.baseURL,
+      "DEEPSEEK_BASE_URL",
+      "https://api.deepseek.com/v1"
+    );
   }
 
   async generate(request: AIModelRequest): Promise<AIModelResponse> {
@@ -49,7 +51,10 @@ export class DeepSeekModel extends BaseModel {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${config.apiKey}`,
+          Authorization: `Bearer ${
+            config.apiKey ||
+            getApiKey(config.apiKey, "DEEPSEEK_API_KEY", "DeepSeek")
+          }`,
         },
       }
     );
@@ -97,7 +102,10 @@ export class DeepSeekModel extends BaseModel {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${config.apiKey}`,
+          Authorization: `Bearer ${
+            config.apiKey ||
+            getApiKey(config.apiKey, "DEEPSEEK_API_KEY", "DeepSeek")
+          }`,
         },
         responseType: "stream",
       }

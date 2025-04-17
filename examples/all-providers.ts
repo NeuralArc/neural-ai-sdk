@@ -27,7 +27,6 @@ async function testOpenAI() {
   try {
     const openaiModel = NeuralAI.createModel(AIProvider.OPENAI, {
       apiKey: process.env.OPENAI_API_KEY,
-      model: "gpt-3.5-turbo",
     });
 
     console.log("Generating response...");
@@ -54,7 +53,6 @@ async function testGoogle() {
   try {
     const googleModel = NeuralAI.createModel(AIProvider.GOOGLE, {
       apiKey: process.env.GOOGLE_API_KEY,
-      model: "gemini-pro",
     });
 
     console.log("Generating response...");
@@ -99,7 +97,7 @@ async function testOllama() {
   try {
     const ollamaModel = NeuralAI.createModel(AIProvider.OLLAMA, {
       baseURL: process.env.OLLAMA_BASE_URL || "http://localhost:11434/api",
-      model: "llama2",
+      model: "llama2:7b",
     });
 
     console.log("Generating response...");
@@ -123,7 +121,7 @@ async function testHuggingFace() {
   try {
     const huggingfaceModel = NeuralAI.createModel(AIProvider.HUGGINGFACE, {
       apiKey: process.env.HUGGINGFACE_API_KEY,
-      model: "meta-llama/Llama-2-7b-chat-hf",
+      model: "gpt2",
     });
 
     console.log("Generating response...");

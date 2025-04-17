@@ -116,6 +116,150 @@ const deepseekModel = NeuralAI.createModel(AIProvider.DEEPSEEK, {
 });
 ```
 
+### Using Multimodal Capabilities
+
+The SDK supports multimodal capabilities for providers with vision-capable models. You can pass images to any model - the SDK will attempt to process them appropriately and provide helpful error messages if the model doesn't support vision inputs.
+
+#### Simple Image + Text Example
+
+```typescript
+import { NeuralAI, AIProvider } from "neural-ai-sdk";
+
+// Create an OpenAI model with vision capabilities
+const openaiModel = NeuralAI.createModel(AIProvider.OPENAI, {
+  model: "gpt-4o", // Model that supports vision
+});
+
+// Process an image with a text prompt
+async function analyzeImage() {
+  const response = await openaiModel.generate({
+    prompt: "What's in this image? Please describe it in detail.",
+    // The image can be a URL, local file path, or Buffer
+    image: "https://example.com/image.jpg",
+  });
+
+  console.log(response.text);
+}
+
+analyzeImage();
+```
+
+#### Using Multiple Images
+
+For more complex scenarios with multiple images or mixed content:
+
+```typescript
+import { NeuralAI, AIProvider } from "neural-ai-sdk";
+
+// Create a Google model with multimodal support
+const googleModel = NeuralAI.createModel(AIProvider.GOOGLE, {
+  model: "gemini-2.0-pro",
+});
+
+async function compareImages() {
+  const response = await googleModel.generate({
+    prompt: "Compare these two images and tell me the differences:",
+    content: [
+      {
+        type: "image",
+        source: "https://example.com/image1.jpg",
+      },
+      {
+        type: "text",
+        text: "This is the first image.",
+      },
+      {
+        type: "image",
+        source: "https://example.com/image2.jpg",
+      },
+      {
+        type: "text",
+        text: "This is the second image.",
+      },
+    ],
+  });
+
+  console.log(response.text);
+}
+
+compareImages();
+```
+
+#### Supported Image Sources
+
+The SDK handles various image sources:
+
+- **URLs**: `"https://example.com/image.jpg"`
+- **Local file paths**: `"/path/to/local/image.jpg"`
+- **Buffers**: Direct image data as a Buffer object
+
+The SDK automatically handles:
+
+- Base64 encoding
+- MIME type detection
+- Image formatting for each provider's API
+
+#### Multimodal Support Across Providers
+
+All providers can attempt to process images - the SDK will automatically handle errors gracefully if a specific model doesn't support multimodal inputs.
+
+| Provider    | Common Vision-Capable Models                        |
+| ----------- | --------------------------------------------------- |
+| OpenAI      | gpt-4o, gpt-4-vision                                |
+| Google      | gemini-2.0-pro                                      |
+| Ollama      | llama-3.2-vision, llama3-vision, bakllava, llava    |
+| HuggingFace | llava, cogvlm, idefics, instructblip                |
+| DeepSeek    | (Check provider documentation for supported models) |
+
+#### Using Multimodal with Ollama
+
+Ollama supports several vision-capable models:
+
+```typescript
+import { NeuralAI, AIProvider } from "neural-ai-sdk";
+
+// Create an Ollama model with vision capabilities
+const ollamaModel = NeuralAI.createModel(AIProvider.OLLAMA, {
+  model: "llama-3.2-vision", // Make sure this model is pulled in your Ollama instance
+  baseURL: "http://localhost:11434/api", // Optional if OLLAMA_BASE_URL is set
+});
+
+async function describeImage() {
+  const response = await ollamaModel.generate({
+    prompt: "What's in this image?",
+    image: "https://example.com/image.jpg", // URL, local path, or Buffer
+  });
+
+  console.log(response.text);
+}
+
+describeImage();
+```
+
+#### Using Multimodal with HuggingFace
+
+HuggingFace offers several multimodal models:
+
+```typescript
+import { NeuralAI, AIProvider } from "neural-ai-sdk";
+
+// Create a HuggingFace model with vision capabilities
+const huggingfaceModel = NeuralAI.createModel(AIProvider.HUGGINGFACE, {
+  model: "llava-hf/llava-1.5-7b-hf", // Vision-capable model
+});
+
+async function analyzeImage() {
+  const response = await huggingfaceModel.generate({
+    prompt: "Describe this image:",
+    image: "https://example.com/image.jpg",
+  });
+
+  console.log(response.text);
+}
+
+analyzeImage();
+```
+
 ## Environment Configuration
 
 You can set up environment variables by:
@@ -194,6 +338,31 @@ const response = await openaiModel.generate({
 console.log(`Prompt tokens: ${response.usage?.promptTokens}`);
 console.log(`Completion tokens: ${response.usage?.completionTokens}`);
 console.log(`Total tokens: ${response.usage?.totalTokens}`);
+```
+
+### Multimodal Streaming
+
+You can also stream responses from multimodal prompts:
+
+```typescript
+import { NeuralAI, AIProvider } from "neural-ai-sdk";
+
+const model = NeuralAI.createModel(AIProvider.OPENAI, {
+  model: "gpt-4o",
+});
+
+async function streamImageAnalysis() {
+  const stream = model.stream({
+    prompt: "Describe this image in detail:",
+    image: "https://example.com/image.jpg",
+  });
+
+  for await (const chunk of stream) {
+    process.stdout.write(chunk);
+  }
+}
+
+streamImageAnalysis();
 ```
 
 ## License

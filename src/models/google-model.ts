@@ -7,6 +7,7 @@ import {
 } from "../types";
 import { BaseModel } from "./base-model";
 import { getApiKey } from "../utils";
+import { processImage } from "../utils/image-utils";
 
 export class GoogleModel extends BaseModel {
   readonly provider = AIProvider.GOOGLE;
@@ -29,8 +30,8 @@ export class GoogleModel extends BaseModel {
       },
     });
 
-    const prompt = this.formatPrompt(request);
-    const result = await model.generateContent(prompt);
+    const content = await this.formatMultiModalContent(request);
+    const result = await model.generateContent(content);
     const response = result.response;
 
     return {
@@ -52,8 +53,8 @@ export class GoogleModel extends BaseModel {
       },
     });
 
-    const prompt = this.formatPrompt(request);
-    const result = await model.generateContentStream(prompt);
+    const content = await this.formatMultiModalContent(request);
+    const result = await model.generateContentStream(content);
 
     for await (const chunk of result.stream) {
       const text = chunk.text();
@@ -63,14 +64,52 @@ export class GoogleModel extends BaseModel {
     }
   }
 
-  private formatPrompt(request: AIModelRequest): string[] {
-    const parts: string[] = [];
+  /**
+   * Format content for Google's Gemini API, handling both text and images
+   */
+  private async formatMultiModalContent(
+    request: AIModelRequest
+  ): Promise<any[]> {
+    const parts: any[] = [];
 
+    // Add system prompt if provided
     if (request.systemPrompt) {
-      parts.push(request.systemPrompt);
+      parts.push({ text: request.systemPrompt });
     }
 
-    parts.push(request.prompt);
+    // Add main prompt text
+    if (request.prompt) {
+      parts.push({ text: request.prompt });
+    }
+
+    // Process structured content array if provided
+    if (request.content) {
+      for (const item of request.content) {
+        if (item.type === "text") {
+          parts.push({ text: item.text });
+        } else if (item.type === "image") {
+          // Process image and add to parts
+          const { base64, mimeType } = await processImage(item.source);
+          parts.push({
+            inlineData: {
+              data: base64,
+              mimeType: mimeType,
+            },
+          });
+        }
+      }
+    }
+
+    // Process single image if provided via convenience property
+    if (request.image) {
+      const { base64, mimeType } = await processImage(request.image);
+      parts.push({
+        inlineData: {
+          data: base64,
+          mimeType: mimeType,
+        },
+      });
+    }
 
     return parts;
   }

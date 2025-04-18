@@ -71,7 +71,7 @@ async function testGoogleMultimodal() {
   try {
     const googleModel = NeuralAI.createModel(AIProvider.GOOGLE, {
       apiKey: process.env.GOOGLE_API_KEY,
-      model: "gemini-2.0-pro",
+      model: "gemini-2.0-flash",
     });
 
     console.log("Generating response from image...");

@@ -153,7 +153,7 @@ import { NeuralAI, AIProvider } from "neural-ai-sdk";
 
 // Create a Google model with multimodal support
 const googleModel = NeuralAI.createModel(AIProvider.GOOGLE, {
-  model: "gemini-2.0-pro",
+  model: "gemini-2.0-flash",
 });
 
 async function compareImages() {
@@ -206,59 +206,10 @@ All providers can attempt to process images - the SDK will automatically handle 
 | Provider    | Common Vision-Capable Models                        |
 | ----------- | --------------------------------------------------- |
 | OpenAI      | gpt-4o, gpt-4-vision                                |
-| Google      | gemini-2.0-pro                                      |
+| Google      | gemini-2.0-flash                                    |
 | Ollama      | llama-3.2-vision, llama3-vision, bakllava, llava    |
 | HuggingFace | llava, cogvlm, idefics, instructblip                |
 | DeepSeek    | (Check provider documentation for supported models) |
-
-#### Using Multimodal with Ollama
-
-Ollama supports several vision-capable models:
-
-```typescript
-import { NeuralAI, AIProvider } from "neural-ai-sdk";
-
-// Create an Ollama model with vision capabilities
-const ollamaModel = NeuralAI.createModel(AIProvider.OLLAMA, {
-  model: "llama-3.2-vision", // Make sure this model is pulled in your Ollama instance
-  baseURL: "http://localhost:11434/api", // Optional if OLLAMA_BASE_URL is set
-});
-
-async function describeImage() {
-  const response = await ollamaModel.generate({
-    prompt: "What's in this image?",
-    image: "https://example.com/image.jpg", // URL, local path, or Buffer
-  });
-
-  console.log(response.text);
-}
-
-describeImage();
-```
-
-#### Using Multimodal with HuggingFace
-
-HuggingFace offers several multimodal models:
-
-```typescript
-import { NeuralAI, AIProvider } from "neural-ai-sdk";
-
-// Create a HuggingFace model with vision capabilities
-const huggingfaceModel = NeuralAI.createModel(AIProvider.HUGGINGFACE, {
-  model: "llava-hf/llava-1.5-7b-hf", // Vision-capable model
-});
-
-async function analyzeImage() {
-  const response = await huggingfaceModel.generate({
-    prompt: "Describe this image:",
-    image: "https://example.com/image.jpg",
-  });
-
-  console.log(response.text);
-}
-
-analyzeImage();
-```
 
 ## Environment Configuration
 

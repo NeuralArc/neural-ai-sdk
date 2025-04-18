@@ -42,12 +42,13 @@ async function generateResponse() {
 generateResponse();
 ```
 
-### Environment Variables Support
+### Automatic Environment Variables Support
 
-You can provide API keys and base URLs through environment variables instead of directly in code:
+The SDK automatically loads environment variables from `.env` files when imported, so you don't need to manually configure dotenv. Simply create a `.env` file in your project root, and the API keys will be automatically detected:
 
 ```typescript
-// No need to provide API keys in code if they're set as environment variables
+// No need to provide API keys in code if they're set in .env files
+// No need to manually call require('dotenv').config()
 const openaiModel = NeuralAI.createModel(AIProvider.OPENAI, {
   model: "gpt-4",
 });
@@ -229,11 +230,7 @@ HUGGINGFACE_API_KEY=your_huggingface_key_here
 OLLAMA_BASE_URL=http://localhost:11434/api
 ```
 
-Make sure to load environment variables from your `.env` file using a package like `dotenv`:
-
-```javascript
-require("dotenv").config();
-```
+The SDK automatically loads environment variables from `.env` files when imported, so you don't need to manually configure dotenv.
 
 ## Configuration Options
 

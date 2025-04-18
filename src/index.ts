@@ -21,6 +21,10 @@ import { GoogleModel } from "./models/google-model";
 import { DeepSeekModel } from "./models/deepseek-model";
 import { OllamaModel } from "./models/ollama-model";
 import { HuggingFaceModel } from "./models/huggingface-model";
+import { loadEnvVariables } from "./utils";
+
+// Automatically load environment variables when the module is imported
+loadEnvVariables();
 
 export class NeuralAI {
   /**

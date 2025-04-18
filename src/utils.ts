@@ -3,6 +3,29 @@
  */
 
 /**
+ * Try to load environment variables from .env files
+ * This is done automatically when the module is imported
+ */
+export function loadEnvVariables(): void {
+  try {
+    // Only require dotenv if it's available
+    // This avoids errors if the user hasn't installed dotenv
+    const dotenv = require('dotenv');
+    
+    // Load from .env file in the project root by default
+    dotenv.config();
+    
+    // Also try to load from any parent directories to support monorepos
+    // and projects where the .env file might be in a different location
+    dotenv.config({ path: '../../.env' });
+    dotenv.config({ path: '../.env' });
+  } catch (error) {
+    // Silent fail if dotenv is not available
+    // This is intentional to not break the module if dotenv is not installed
+  }
+}
+
+/**
  * Get an API key from config or environment variables
  * @param configKey The API key from the config object
  * @param envVarName The name of the environment variable to check

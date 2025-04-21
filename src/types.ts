@@ -30,6 +30,22 @@ export interface ImageContent {
 
 export type Content = TextContent | ImageContent;
 
+// Function calling interfaces
+export interface FunctionDefinition {
+  name: string;
+  description: string;
+  parameters: {
+    type: string;
+    properties?: Record<string, any>;
+    required?: string[];
+  };
+}
+
+export interface FunctionCall {
+  name: string;
+  arguments: string; // JSON string of arguments
+}
+
 export interface AIModelResponse {
   text: string;
   usage?: {
@@ -37,6 +53,7 @@ export interface AIModelResponse {
     completionTokens?: number;
     totalTokens?: number;
   };
+  functionCalls?: FunctionCall[]; // Add function calls to response
   raw?: any;
 }
 
@@ -48,6 +65,9 @@ export interface AIModelRequest {
   content?: Content[];
   // For simple image input (convenience method)
   image?: string | Buffer;
+  // Function calling support
+  functions?: FunctionDefinition[];
+  functionCall?: "auto" | "none" | { name: string };
 }
 
 export interface AIModel {

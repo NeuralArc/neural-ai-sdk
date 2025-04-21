@@ -4,6 +4,7 @@ import {
   AIModelRequest,
   AIModelResponse,
   AIProvider,
+  FunctionCall,
 } from "../types";
 import { BaseModel } from "./base-model";
 import { getApiKey, getBaseUrl } from "../utils";
@@ -39,15 +40,34 @@ export class DeepSeekModel extends BaseModel {
       content: request.prompt,
     });
 
+    // Prepare request payload
+    const payload: any = {
+      model: config.model || "deepseek-chat",
+      messages,
+      temperature: config.temperature,
+      max_tokens: config.maxTokens,
+      top_p: config.topP,
+    };
+
+    // Add function calling support if functions are provided
+    if (request.functions && request.functions.length > 0) {
+      payload.functions = request.functions;
+
+      // Handle function call configuration
+      if (request.functionCall) {
+        if (request.functionCall === "auto") {
+          payload.function_call = "auto";
+        } else if (request.functionCall === "none") {
+          payload.function_call = "none";
+        } else if (typeof request.functionCall === "object") {
+          payload.function_call = { name: request.functionCall.name };
+        }
+      }
+    }
+
     const response = await axios.post(
       `${this.baseURL}/chat/completions`,
-      {
-        model: config.model || "deepseek-chat",
-        messages,
-        temperature: config.temperature,
-        max_tokens: config.maxTokens,
-        top_p: config.topP,
-      },
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
@@ -59,6 +79,9 @@ export class DeepSeekModel extends BaseModel {
       }
     );
 
+    // Process function calls if any
+    const functionCalls = this.processFunctionCalls(response.data);
+
     return {
       text: response.data.choices[0].message.content,
       usage: {
@@ -66,6 +89,7 @@ export class DeepSeekModel extends BaseModel {
         completionTokens: response.data.usage?.completion_tokens,
         totalTokens: response.data.usage?.total_tokens,
       },
+      functionCalls,
       raw: response.data,
     };
   }
@@ -89,16 +113,35 @@ export class DeepSeekModel extends BaseModel {
       content: request.prompt,
     });
 
+    // Prepare request payload
+    const payload: any = {
+      model: config.model || "deepseek-chat",
+      messages,
+      temperature: config.temperature,
+      max_tokens: config.maxTokens,
+      top_p: config.topP,
+      stream: true,
+    };
+
+    // Add function calling support if functions are provided
+    if (request.functions && request.functions.length > 0) {
+      payload.functions = request.functions;
+
+      // Handle function call configuration
+      if (request.functionCall) {
+        if (request.functionCall === "auto") {
+          payload.function_call = "auto";
+        } else if (request.functionCall === "none") {
+          payload.function_call = "none";
+        } else if (typeof request.functionCall === "object") {
+          payload.function_call = { name: request.functionCall.name };
+        }
+      }
+    }
+
     const response = await axios.post(
       `${this.baseURL}/chat/completions`,
-      {
-        model: config.model || "deepseek-chat",
-        messages,
-        temperature: config.temperature,
-        max_tokens: config.maxTokens,
-        top_p: config.topP,
-        stream: true,
-      },
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
@@ -133,5 +176,22 @@ export class DeepSeekModel extends BaseModel {
         }
       }
     }
+  }
+
+  /**
+   * Process function calls from DeepSeek API response
+   */
+  private processFunctionCalls(response: any): FunctionCall[] | undefined {
+    if (!response.choices?.[0]?.message?.function_call) {
+      return undefined;
+    }
+
+    const functionCall = response.choices[0].message.function_call;
+    return [
+      {
+        name: functionCall.name,
+        arguments: functionCall.arguments,
+      },
+    ];
   }
 }

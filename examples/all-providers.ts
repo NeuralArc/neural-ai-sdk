@@ -7,11 +7,11 @@ dotenv.config();
 async function main() {
   try {
     // Test each provider if API keys are available
-    await testOpenAI();
-    await testGoogle();
-    await testDeepSeek();
+    // await testOpenAI();
+    // await testGoogle();
+    // await testDeepSeek();
     await testOllama();
-    await testHuggingFace();
+    // await testHuggingFace();
   } catch (error) {
     console.error("Error:", error);
   }
